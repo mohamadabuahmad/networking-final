@@ -1,0 +1,42 @@
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .sidebar-container {
+    background-color: white;
+    width: 33.333%;
+    padding: 1.5rem;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .sidebar-close-button {
+    color: #f56565;
+  }
+  
+  .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .sidebar-item {
+    background-color: #f7fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  

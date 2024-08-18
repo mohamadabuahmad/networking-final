@@ -1,0 +1,31 @@
+.profile-page-container {
+    flex-grow: 1;
+    padding: 1.5rem; /* p-6 */
+  }
+  
+  .profile-page-title {
+    font-size: 1.875rem; /* text-3xl */
+    margin-bottom: 1.5rem; /* mb-6 */
+  }
+  
+  .profile-page-photo {
+    margin-bottom: 1rem; /* mb-4 */
+    border-radius: 9999px; /* rounded-full */
+    width: 8rem; /* w-32 */
+    height: 8rem; /* h-32 */
+    object-fit: cover; /* object-cover */
+  }
+  
+  .profile-page-info {
+    margin-bottom: 0.5rem;
+  }
+  
+  .profile-page-error {
+    padding: 1.5rem; /* p-6 */
+    color: #f56565; /* text-red-500 */
+  }
+  
+  .profile-page-loading {
+    padding: 1.5rem; /* p-6 */
+  }
+  

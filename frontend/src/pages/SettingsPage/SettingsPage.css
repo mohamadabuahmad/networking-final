@@ -1,0 +1,120 @@
+.settings-container {
+    padding: 1rem; /* p-4 */
+    background-color: white;
+    color: black;
+  }
+  
+  .settings-title {
+    font-size: 1.5rem; /* text-2xl */
+    margin-bottom: 1rem; /* mb-4 */
+  }
+  
+  .settings-subtitle {
+    font-size: 1.25rem; /* text-xl */
+    margin-bottom: 1rem; /* mb-4 */
+  }
+  
+  .settings-section {
+    margin-bottom: 1.5rem; /* mb-6 */
+  }
+  
+  .settings-grid {
+    display: grid;
+    gap: 1rem; /* gap-4 */
+  }
+  
+  .settings-field-container {
+    padding: 1rem; /* p-4 */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; /* rounded */
+    background-color: #f7fafc;
+  }
+  
+  .settings-field-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .settings-field-title h3 {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+  }
+  
+  .settings-field-input {
+    width: 100%;
+    padding: 0.5rem; /* p-2 */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; /* rounded */
+    margin-top: 0.5rem; /* mt-2 */
+  }
+  
+  .settings-button {
+    background-color: #4299e1; /* bg-blue-500 */
+    color: white;
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    border-radius: 0.375rem; /* rounded */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .settings-button:hover {
+    background-color: #3182ce; /* hover:bg-blue-600 */
+  }
+  
+  .skills-container {
+    display: grid;
+    gap: 1rem; /* gap-4 */
+  }
+  
+  .skill-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem; /* p-4 */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; /* rounded */
+    background-color: #f7fafc;
+  }
+  
+  .skill-button {
+    background-color: #f56565; /* bg-red-500 */
+    color: white;
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    border-radius: 0.375rem; /* rounded */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .skill-button:hover {
+    background-color: #e53e3e; /* hover:bg-red-600 */
+  }
+  
+  .add-skill-container {
+    padding: 1rem; /* p-4 */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; /* rounded */
+    background-color: #f7fafc;
+  }
+  
+  .add-skill-input {
+    width: 100%;
+    padding: 0.5rem; /* p-2 */
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem; /* rounded */
+    margin-bottom: 0.5rem; /* mb-2 */
+  }
+  
+  .add-skill-button {
+    background-color: #48bb78; /* bg-green-500 */
+    color: white;
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    border-radius: 0.375rem; /* rounded */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .add-skill-button:hover {
+    background-color: #38a169; /* hover:bg-green-600 */
+  }
+  

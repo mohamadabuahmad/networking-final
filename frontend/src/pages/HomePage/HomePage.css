@@ -1,0 +1,62 @@
+/* HomePage.css */
+
+/* Dark mode styles */
+.dark-mode {
+  background-color: #2d2d2d;
+  color: white;
+}
+
+/* Light mode styles */
+.light-mode {
+  background-color: white;
+  color: black;
+}
+
+/* Shared styles */
+.container {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.dark-mode-button {
+  background-color: #2d2d2d;
+  color: white;
+}
+
+.light-mode-button {
+  background-color: #f0f0f0;
+  color: black;
+}
+
+.post-container {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.post-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.post-content {
+  margin-bottom: 1rem;
+}
+
+.comment-section {
+  margin-top: 1rem;
+}
