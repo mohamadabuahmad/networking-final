@@ -10,11 +10,11 @@ const MessagingPage = () => {
   const [searchUsername, setSearchUsername] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [chatHistories, setChatHistories] = useState({});
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
 
   const websocketUrl = `wss://chat-server-networking-197a435521f1.herokuapp.com/`;
-  const messageInputRef = useRef(null);
 
-  const { sendMessage, readyState } = useWebSocket(
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
     selectedUser ? websocketUrl : null,
     {
       onOpen: () => {
@@ -55,6 +55,12 @@ const MessagingPage = () => {
     }
   );
 
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const peerConnectionRef = useRef(null);
+  const localStreamRef = useRef(null);
+  const messageInputRef = useRef(null);
+
   useEffect(() => {
     if (currentUser) {
       const fetchFriends = async () => {
@@ -85,6 +91,78 @@ const MessagingPage = () => {
     }
   };
 
+  const startVideoCall = async (user) => {
+    setSelectedUser(user);
+    setIsVideoCallActive(true);
+  };
+
+  useEffect(() => {
+    if (isVideoCallActive) {
+      setupVideoCall();
+    }
+  }, [isVideoCallActive]);
+
+  const endVideoCall = () => {
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current = null;
+    }
+    setIsVideoCallActive(false);
+  };
+
+  const setupVideoCall = async () => {
+    const peerConnection = new RTCPeerConnection();
+    peerConnectionRef.current = peerConnection;
+
+    const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    localStreamRef.current = localStream;
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream;
+    }
+
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    peerConnection.ontrack = event => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        sendMessage(JSON.stringify({ candidate: event.candidate }));
+      }
+    };
+
+    peerConnection.onnegotiationneeded = async () => {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      sendMessage(JSON.stringify({ offer: peerConnection.localDescription }));
+    };
+  };
+
+  const handleOffer = async (offer) => {
+    const peerConnection = peerConnectionRef.current;
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    sendMessage(JSON.stringify({ answer: peerConnection.localDescription }));
+  };
+
+  const handleAnswer = async (answer) => {
+    const peerConnection = peerConnectionRef.current;
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+  };
+
+  const handleCandidate = async (candidate) => {
+    const peerConnection = peerConnectionRef.current;
+    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+  };
+
   const fetchChatHistory = async (userId) => {
     setChatHistories(prev => ({ ...prev, [userId]: [] }));
   };
@@ -97,17 +175,18 @@ const MessagingPage = () => {
   };
 
   const handleSendMessage = () => {
-    const messageInput = messageInputRef.current.value;
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value;
     const messageData = {
       sender_id: currentUser.user_id,
       receiver_id: selectedUser._id,
-      message: messageInput,
+      message,
       sender: 'You'
     };
 
     sendMessage(JSON.stringify(messageData));
     appendMessageToHistory(selectedUser._id, messageData);
-    messageInputRef.current.value = '';
+    messageInput.value = '';
   };
 
   const connectionStatus = {
@@ -159,6 +238,12 @@ const MessagingPage = () => {
                         >
                           Chat
                         </button>
+                        <button
+                          onClick={() => startVideoCall(user)}
+                          className="bg-green-500 text-white px-3 py-1 rounded"
+                        >
+                          Video Call
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -190,6 +275,12 @@ const MessagingPage = () => {
                       >
                         Chat
                       </button>
+                      <button
+                        onClick={() => startVideoCall(friend)}
+                        className="bg-green-500 text-white px-3 py-1 rounded"
+                      >
+                        Video Call
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -214,14 +305,19 @@ const MessagingPage = () => {
                 ))}
               </div>
 
-              <input 
-                type="text" 
-                ref={messageInputRef} 
-                placeholder="Type your message" 
-                className="p-2 border rounded w-full mb-2" 
-              />
+              <input type="text" id="messageInput" placeholder="Type your message" className="p-2 border rounded w-full mb-2" />
               <button onClick={handleSendMessage} className="bg-blue-500 text-white px-3 py-1 rounded">Send</button>
             </div>
+            {isVideoCallActive && (
+              <div className="mt-4">
+                <h2 className="text-xl mb-2">Video Call</h2>
+                <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                  <video ref={localVideoRef} autoPlay playsInline className="w-full sm:w-1/2 border" />
+                  <video ref={remoteVideoRef} autoPlay playsInline className="w-full sm:w-1/2 border" />
+                </div>
+                <button onClick={endVideoCall} className="bg-red-500 text-white px-3 py-1 rounded mt-2">End Call</button>
+              </div>
+            )}
           </div>
         ) : (
           <p>Select a user to start chatting</p>
