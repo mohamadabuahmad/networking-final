@@ -22,7 +22,7 @@ const CommentsSidebar = ({ title, content, onClose }) => {
         content.map(async (item) => {
           let username;
 
-          if (title === 'Comments') {
+          if (title === 'Comments') { // Title is accessed here
             username = await fetchUsername(item.user_id);
           } else {
             username = await fetchUsername(item.user);
@@ -35,7 +35,7 @@ const CommentsSidebar = ({ title, content, onClose }) => {
     };
 
     enrichContent();
-  }, [content]);
+  }, [content, title]); // Include `title` in the dependency array
 
   return (
     <div className="sidebar-overlay">

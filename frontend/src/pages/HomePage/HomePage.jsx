@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     enrichPostsData, 
-    fetchUsername, 
-    addPost as addPostUtility, 
-    addLike, 
-    removeLike, 
-    addComment, 
-    deleteComment 
+    addPost as addPostUtility
 } from './homepageutilities.jsx';
 
 import './HomePage.css';
@@ -23,8 +18,8 @@ function HomePage() {
     const [sidebarTitle, setSidebarTitle] = useState('');
     const [message, setMessage] = useState('');
     const [darkMode, setDarkMode] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Add state for sidebar
 
+    // Load theme from localStorage on mount
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
@@ -33,17 +28,15 @@ function HomePage() {
         }
     }, []);
 
+    // Toggle dark mode and update localStorage
     const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
         const newTheme = darkMode ? 'light' : 'dark';
+        setDarkMode(!darkMode);
         document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', newTheme);
     };
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-
+    // Fetch data on component mount
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -59,6 +52,7 @@ function HomePage() {
         fetchData();
     }, []);
 
+    // Add a new post
     const addPost = async () => {
         const success = await addPostUtility(currentUser, postContent, posts, setPosts, setMessage);
         if (success) {
@@ -66,12 +60,14 @@ function HomePage() {
         }
     };
 
+    // Show comments sidebar
     const showComments = (comments) => {
         setSidebarContent(comments);
         setSidebarTitle('Comments');
         setShowSidebar(true);
     };
 
+    // Show likes sidebar
     const showLikes = (likes) => {
         setSidebarContent(likes);
         setSidebarTitle('Likes');

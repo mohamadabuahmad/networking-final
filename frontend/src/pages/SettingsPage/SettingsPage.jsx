@@ -17,11 +17,10 @@ const SettingsPage = () => {
   const [editingField, setEditingField] = useState('');
   const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState('');
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchUserData(currentUser.user_id, setUserData, setError);
-    fetchUserSkills(currentUser.user_id, setSkills, setError);
+    fetchUserData(currentUser.user_id, setUserData);
+    fetchUserSkills(currentUser.user_id, setSkills);
   }, [currentUser.user_id]);
 
   const renderFieldValue = (value) => {
@@ -44,7 +43,7 @@ const SettingsPage = () => {
                 <div className="settings-field-title">
                   <h3>{field}</h3>
                   <button
-                    onClick={() => handleEditClick(field, userData, setUserData, setEditingField, currentUser, setError)}
+                    onClick={() => handleEditClick(field, userData, setUserData, setEditingField, currentUser)}
                     className="settings-button"
                   >
                     {editingField === field ? 'Done' : 'Edit'}
@@ -75,7 +74,7 @@ const SettingsPage = () => {
             <div key={index} className="skill-item">
               <p>{skill}</p>
               <button
-                onClick={() => removeSkill(skill, setSkills, skills, currentUser, setError)}
+                onClick={() => removeSkill(skill, setSkills, skills, currentUser)}
                 className="skill-button"
               >
                 Remove
@@ -91,7 +90,7 @@ const SettingsPage = () => {
               placeholder="New Skill"
             />
             <button
-              onClick={() => addSkill(newSkill, setSkills, skills, currentUser, setNewSkill, setError)}
+              onClick={() => addSkill(newSkill, setSkills, skills, currentUser, setNewSkill)}
               className="add-skill-button"
             >
               Add Skill

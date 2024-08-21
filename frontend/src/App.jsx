@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage/HomePage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
@@ -11,6 +11,7 @@ import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage';
 import MessagingPage from './pages/MessagingPage';
 import Sidebar from './pages/Sidebar/Sidebar';
 import { UserProvider } from '../src/pages/UserContext';
+import { Outlet } from 'react-router-dom';
 
 function App() {
   const [auth, setAuth] = useState(false);
@@ -34,7 +35,7 @@ function App() {
             <Route path="/settings" element={auth ? <SettingsPage /> : <Navigate to="/login" />} />
             <Route path="/notifications" element={auth ? <NotificationsPage /> : <Navigate to="/login" />} />
             <Route path="/messages" element={auth ? <MessagingPage /> : <Navigate to="/login" />} />
-            <Route path="/" element={auth ? <HomePage /> : <Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to="/login" />} /> {/* Default route redirects to login */}
           </Route>
         </Routes>
       </Router>
@@ -56,7 +57,7 @@ const MainLayout = ({ auth }) => {
         onClick={toggleSidebar}
         className="lg:hidden p-4 bg-gray-800 text-white"
       >
-        
+        Toggle Sidebar
       </button>
 
       {/* Sidebar component with toggle functionality */}

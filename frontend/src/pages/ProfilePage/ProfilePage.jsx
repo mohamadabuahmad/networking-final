@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUser } from '../UserContext';
 import { fetchUserDetails } from './profileUtils';
 import './ProfilePage.css';
 
 function ProfilePage() {
-  const { currentUser } = useUser();
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
