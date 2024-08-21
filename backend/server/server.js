@@ -16,6 +16,7 @@ app.use(cors({
   credentials: true // Allow cookies and other credentials
 }));
 
+
 // Database connection
 let db;
 connectToDb((err) => {
@@ -91,7 +92,6 @@ const verifyUser = async (email, password, callback) => {
             console.log('No user found with this email:', email);
             return callback(null, { message: 'Wrong email or password.' });
         }
-
         if (password !== user.password) {
             return callback(null, { message: 'Wrong email or password.' });
         } else {
@@ -552,39 +552,55 @@ app.post('/delete-comment', async (req, res) => {
   const { post_id, comment_id } = req.body;
 
   try {
-    // Ensure both post_id and comment_id are valid ObjectId
-    if (!ObjectId.isValid(post_id) || !ObjectId.isValid(comment_id)) {
-      return res.status(400).send('Invalid post ID or comment ID');
-    }
+      console.log('Request received to delete comment:', { post_id, comment_id });
 
-    const postObjectId = new ObjectId(post_id);
-    const commentObjectId = new ObjectId(comment_id);
+      /*
+      if (!ObjectId.isValid(post_id) || !ObjectId.isValid(comment_id)) {
+          console.error('Invalid post ID or comment ID');
+          return res.status(400).send('Invalid post ID or comment ID');
+      }
+     */
+      //const postObjectId = new ObjectId(post_id);
+      const commentObjectId = new ObjectId(comment_id);
+      
+      const comment = await db.collection('comments').findOne({ _id: commentObjectId });
+      if (!comment) {
+          console.error('Comment not found:', commentObjectId);
+          return res.status(404).send('Comment not found');
+      }
 
-    const comment = await db.collection('comments').findOne({ _id: commentObjectId });
-    if (!comment) {
-      return res.status(404).send('Comment not found');
-    }
+      await db.collection('comments').deleteOne({ _id: commentObjectId });
+      console.log('Comment deleted:', commentObjectId);
 
-    await db.collection('comments').deleteOne({ _id: commentObjectId });
+      console.log('post_id: '+new ObjectId(post_id));
+      const postUpdateResult = await db.collection('posts').findOneAndUpdate(
+          { _id: new ObjectId(post_id) },
+          { $inc: { comments_num: -1 } },
+          { returnDocument: 'after' }
+      );
 
-    const postUpdateResult = await db.collection('posts').findOneAndUpdate(
-      { _id: postObjectId },
-      { $inc: { comments_num: -1 } },
-      { returnDocument: 'after' }
-    );
+      console.log(postUpdateResult.value);
+      if (!postUpdateResult.value) {
+          console.error('Post not found:', new ObjectId(post_id));
+          return res.status(404).send('Post not found');
+      }
 
-    if (!postUpdateResult.value) {
-      return res.status(404).send('Post not found');
-    }
+      console.log('Post updated:', new ObjectId(post_id));
 
-    await addDeleteCommentNotification(post_id, { user_name: req.body.current_user_name }, comment.comment_content);
+      try {
+          await addDeleteCommentNotification(post_id, { user_name: req.body.current_user_name }, comment.comment_content);
+          console.log('Delete comment notification added');
+      } catch (error) {
+          console.error('Failed to add delete comment notification, but comment was deleted:', error);
+      }
 
-    res.json({ message: 'Comment deleted successfully', post: postUpdateResult.value });
+      res.json({ message: 'Comment deleted successfully', post: postUpdateResult.value });
   } catch (error) {
-    console.error('Error deleting comment:', error);
-    res.status(500).send('Failed to delete comment');
+      console.error('Error deleting comment:', error);
+      res.status(500).send('Failed to delete comment');
   }
 });
+
 
 async function addDeleteCommentNotification(postId, currentUser, commentContent) {
   try {
@@ -653,7 +669,7 @@ app.post('/toggle-like', async (req, res) => {
   }
 });
 
-/*
+
 app.post('/fetch-notifications', async (req, res) => {
   const { user_id } = req.body;
   console.log('Received user_id:', user_id);
@@ -661,21 +677,6 @@ app.post('/fetch-notifications', async (req, res) => {
   try {
     // Since user_id is stored as a string in your database, we query with it directly
     const notifications = await db.collection('notifications').find({ user_id: user_id }).toArray();
-    console.log('Fetched notifications:', notifications);
-    res.json({ notifications });
-  } catch (err) {
-    console.error('Error fetching notifications:', err);
-    return res.status(500).send('Error fetching notifications');
-  }
-});
-*/
-
-app.post('/fetch-notifications', async (req, res) => {
-  const { user_id } = req.body;
-  console.log('Received user_id:', user_id);
-
-  try {
-    const notifications = await db.collection('notifications').find({ user_id: user_id }).sort({ date: -1 }).toArray(); // Sort by date descending
     console.log('Fetched notifications:', notifications);
     res.json({ notifications });
   } catch (err) {
@@ -764,6 +765,7 @@ app.get('/user/:userId', async (req, res) => {
   }
 });
 
+/*
 // Endpoint to fetch skills by user_id
 app.post('/fetch-skills', async (req, res) => {
   const { user_id } = req.body;
@@ -771,6 +773,22 @@ app.post('/fetch-skills', async (req, res) => {
   try {
     const results = await db.collection('skills').find({ user_id }).toArray();
     const skills = results.map(row => row.skill);
+    res.json({ skills });
+  } catch (err) {
+    console.error('Error fetching skills:', err);
+    res.status(500).send('Error fetching skills');
+  }
+});
+*/
+// Endpoint to fetch skills by user_id
+app.post('/fetch-skills', async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const results1 = await db.collection('skills').find({ user_id }).toArray();
+    const results2 = await db.collection('skills').find({ user_id: new ObjectId(user_id) }).toArray();
+    const combinedResults = results1.concat(results2);
+    const skills = combinedResults.map(row => row.skill);
     res.json({ skills });
   } catch (err) {
     console.error('Error fetching skills:', err);
