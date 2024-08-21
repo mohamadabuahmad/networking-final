@@ -10,7 +10,7 @@ import SettingsPage from './pages/SettingsPage/SettingsPage';
 import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage';
 import MessagingPage from './pages/MessagingPage';
 import Sidebar from './pages/Sidebar/Sidebar';
-import { UserProvider } from '../src/pages/UserContext';
+import { UserProvider } from './pages/UserContext';
 import { Outlet } from 'react-router-dom';
 
 function App() {
