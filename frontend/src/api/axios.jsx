@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: '/api', // Ensure this matches your backend port
+  baseURL: 'https://networking-main.vercel.app/', // Ensure this matches your backend port
 });
 
 export default instance;
