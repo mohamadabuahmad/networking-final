@@ -8,21 +8,33 @@ import {
   handleSkillChange,
   addSkill,
   removeSkill,
+  uploadPhoto, // Import the function to handle photo upload
 } from './settingsUtils';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
   const { currentUser } = useUser();
   const [userData, setUserData] = useState({});
-  const [editingField, setEditingField] = useState(''); // Ensure this state is defined
+  const [editingField, setEditingField] = useState('');
   const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState('');
-  const [error, setError] = useState(null); // State to handle errors
+  const [error, setError] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); // State to manage selected file
 
   useEffect(() => {
     fetchUserData(currentUser.user_id, setUserData, setError);
     fetchUserSkills(currentUser.user_id, setSkills, setError);
   }, [currentUser.user_id]);
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUploadClick = () => {
+    if (selectedFile) {
+      uploadPhoto(selectedFile, currentUser.user_id, setUserData, setError);
+    }
+  };
 
   const renderFieldValue = (value) => {
     if (typeof value === 'object') {
@@ -67,6 +79,26 @@ const SettingsPage = () => {
               </div>
             )
           ))}
+        </div>
+
+        {/* File input for photo upload */}
+        <div className="settings-field-container">
+          <div className="settings-field-title">
+            <h3>Photo</h3>
+          </div>
+          <div className="mt-2">
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="settings-file-input"
+            />
+            <button
+              onClick={handleUploadClick}
+              className="settings-button mt-2"
+            >
+              Upload Photo
+            </button>
+          </div>
         </div>
       </div>
 
