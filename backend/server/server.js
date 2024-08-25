@@ -223,6 +223,8 @@ app.post('/add-post', async (req, res) => {
     return res.status(500).send({ message: 'Failed to add post' });
   }
 });
+
+/*
 app.get('/posts', async (req, res) => {
   try {
     const { userId, page = 1, limit = 10 } = req.query; // Get userId, page, and limit from query parameters
@@ -254,9 +256,9 @@ app.get('/posts', async (req, res) => {
     return res.status(500).send({ message: 'Failed to fetch posts' });
   }
 });
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////
-/*
+
 // Endpoint to fetch posts with user information
 app.get('/posts', async (req, res) => {
   try {
@@ -267,7 +269,7 @@ app.get('/posts', async (req, res) => {
     return res.status(500).send({ message: 'Failed to fetch posts' });
   }
 });
-*/
+
 /*
 app.get('/fetch-data', async (req, res) => {
   try {
@@ -290,7 +292,7 @@ app.get('/fetch-data', async (req, res) => {
   }
 });
 */
-
+/*
 app.get('/fetch-data', async (req, res) => {
   try {
     const posts = await db.collection('posts').find().sort({ post_date: -1 }).toArray(); // Sort by post_date descending
@@ -341,6 +343,44 @@ app.get('/user/:userId', async (req, res) => {
     return res.status(500).send('Error fetching user details');
   }
 });
+*/
+//////////////////////////////////////////////////////////////////////////////////////////////
+app.get('/fetch-data', async (req, res) => {
+  try {
+    const { userId, limit, skip } = req.query; // Get userId, limit, and skip from query parameters
+
+    // Fetch the user's friends' IDs
+    const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
+    const friendIds = friends.map(friend => new ObjectId(friend.friend_id));
+
+    // Fetch posts by friends, sorted by date, and limited by pagination
+    const posts = await db.collection('posts')
+      .find({ user_id: { $in: friendIds } })
+      .sort({ post_date: -1 })
+      .skip(parseInt(skip) || 0) // Skip a number of documents (for pagination)
+      .limit(parseInt(limit) || 10) // Limit the number of documents to fetch
+      .toArray();
+
+    const postIds = posts.map(post => post._id.toString());
+
+    // Fetch comments and likes only for the posts that are being returned
+    const comments = await db.collection('comments').find({ post_id: { $in: postIds } }).toArray();
+    const likes = await db.collection('likes').find({ post_id: { $in: postIds } }).toArray();
+
+    // Map through comments to rename _id to comment_id
+    const formattedComments = comments.map(comment => ({
+      ...comment,
+      comment_id: comment._id.toString(),
+      _id: undefined,
+    }));
+
+    res.json({ posts, comments: formattedComments, likes });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).send({ message: 'Failed to fetch data' });
+  }
+});
+
 
 app.get('/post/:postId', async (req, res) => {
   const { postId } = req.params;

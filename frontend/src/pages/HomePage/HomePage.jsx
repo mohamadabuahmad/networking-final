@@ -3,7 +3,7 @@ import {
     enrichPostsData, 
     addPost as addPostUtility,
     addLike,
-    removeLike,  // Assuming you have a removeLike utility function
+    removeLike,
     addComment
 } from './homepageutilities.jsx';
 
@@ -22,7 +22,11 @@ function HomePage() {
     const [message, setMessage] = useState('');
     const [darkMode, setDarkMode] = useState(false);
     const [commentContents, setCommentContents] = useState({});
-    const [likedPosts, setLikedPosts] = useState({}); // State to track liked posts
+    const [likedPosts, setLikedPosts] = useState({});
+    const [skip, setSkip] = useState(0); // Track number of posts already loaded
+    const [hasMorePosts, setHasMorePosts] = useState(true); // Track if there are more posts to load
+
+    const limit = 5; // Number of posts to fetch per request
 
     // Load theme from localStorage on mount
     useEffect(() => {
@@ -35,28 +39,43 @@ function HomePage() {
 
     // Fetch data on component mount
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('/fetch-data');
-                const { posts, comments, likes } = response.data;
-                const enrichedPosts = await enrichPostsData(posts, comments, likes);
-                setPosts(enrichedPosts);
-
-                // Update likedPosts state based on initial data
-                const userLikes = likes.reduce((acc, like) => {
-                    if (like.user === currentUser.user_id) {
-                        acc[like.post_id] = true;
-                    }
-                    return acc;
-                }, {});
-                setLikedPosts(userLikes);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
+        fetchPosts();
     }, [currentUser]);
+
+    const fetchPosts = async () => {
+        if (!hasMorePosts) return;
+
+        try {
+            const response = await axios.get('/fetch-data', {
+                params: {
+                    userId: currentUser.user_id,
+                    limit,
+                    skip
+                }
+            });
+
+            const { posts, comments, likes } = response.data;
+            const enrichedPosts = await enrichPostsData(posts, comments, likes);
+            setPosts(prevPosts => [...prevPosts, ...enrichedPosts]);
+
+            // Update likedPosts state based on initial data
+            const userLikes = likes.reduce((acc, like) => {
+                if (like.user === currentUser.user_id) {
+                    acc[like.post_id] = true;
+                }
+                return acc;
+            }, {});
+            setLikedPosts(userLikes);
+
+            if (posts.length < limit) {
+                setHasMorePosts(false); // No more posts to load
+            }
+
+            setSkip(prevSkip => prevSkip + limit);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    };
 
     // Add a new post
     const addPost = async () => {
@@ -69,11 +88,9 @@ function HomePage() {
     // Handle like/unlike action
     const handleLikeToggle = async (postId) => {
         if (likedPosts[postId]) {
-            // If already liked, remove the like
             await removeLike(postId, currentUser, posts, setPosts);
             setLikedPosts(prev => ({ ...prev, [postId]: false }));
         } else {
-            // If not liked, add the like
             await addLike(postId, currentUser, posts, setPosts);
             setLikedPosts(prev => ({ ...prev, [postId]: true }));
         }
@@ -176,6 +193,13 @@ function HomePage() {
                     </div>
                 ))}
             </div>
+
+            {hasMorePosts && (
+                <button onClick={fetchPosts} className="load-more-button mt-4">
+                    Load More
+                </button>
+            )}
+
             {showSidebar && (
                 <CommentsSidebar
                     title={sidebarTitle}
