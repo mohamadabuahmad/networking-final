@@ -809,6 +809,27 @@ app.post('/update-user', async (req, res) => {
   }
 });
 
+app.post('/upload-photo', upload.single('photo'), async (req, res) => {
+  try {
+    const user_id = req.body.user_id;
+    const photoUrl = `/uploads/${req.file.filename}`; // Assuming you're saving the file to a folder named 'uploads'
+
+    // Update user document with the new photo URL
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: { photo: photoUrl } }
+    );
+
+    if (result.modifiedCount === 1) {
+      res.json({ success: true, photoUrl });
+    } else {
+      res.json({ success: false, message: 'Failed to update photo' });
+    }
+  } catch (err) {
+    console.error('Error uploading photo:', err);
+    res.status(500).json({ success: false, message: 'Error uploading photo' });
+  }
+});
 
 
 /*

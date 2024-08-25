@@ -10,6 +10,7 @@ import {
   removeSkill,
 } from './settingsUtils';
 import './SettingsPage.css';
+import axios from '../../api/axios';
 
 const SettingsPage = () => {
   const { currentUser } = useUser();
@@ -23,6 +24,33 @@ const SettingsPage = () => {
     fetchUserData(currentUser.user_id, setUserData, setError);
     fetchUserSkills(currentUser.user_id, setSkills, setError);
   }, [currentUser.user_id]);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('user_id', currentUser.user_id);
+
+      try {
+        const response = await axios.post('/upload-photo', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          setUserData({ ...userData, photo: response.data.photoUrl });
+          setEditingField('');
+        } else {
+          setError('Failed to upload photo');
+        }
+      } catch (err) {
+        console.error('Error uploading photo:', err);
+        setError('Error uploading photo');
+      }
+    }
+  };
 
   const renderFieldValue = (value) => {
     if (typeof value === 'object') {
@@ -54,14 +82,26 @@ const SettingsPage = () => {
                 </div>
                 <div className="mt-2">
                   {editingField === field ? (
-                    <input
-                      type="text"
-                      value={value}
-                      onChange={(e) => handleInputChange(e, field, userData, setUserData)}
-                      className="settings-field-input"
-                    />
+                    field === 'photo' ? (
+                      <input
+                        type="file"
+                        onChange={handlePhotoUpload}
+                        className="settings-field-input"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={value}
+                        onChange={(e) => handleInputChange(e, field, userData, setUserData)}
+                        className="settings-field-input"
+                      />
+                    )
                   ) : (
-                    <p>{renderFieldValue(value)}</p>
+                    field === 'photo' ? (
+                      <img src={value} alt="Profile" className="profile-photo" />
+                    ) : (
+                      <p>{renderFieldValue(value)}</p>
+                    )
                   )}
                 </div>
               </div>
@@ -70,6 +110,7 @@ const SettingsPage = () => {
         </div>
       </div>
 
+      {/* Skills Section (unchanged) */}
       <div className="settings-section">
         <h2 className="settings-subtitle">Skills</h2>
         <div className="skills-container">
