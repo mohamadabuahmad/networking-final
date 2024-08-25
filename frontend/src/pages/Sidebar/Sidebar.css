@@ -3,7 +3,7 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  right: 0; /* Ensures it appears on the right for larger screens */
+  left: 0; /* Ensures it appears on the left for larger screens */
   background-color: #2d3748; /* bg-gray-800 */
   color: white;
   width: 16rem; /* w-64 */
@@ -17,9 +17,7 @@
 /* Sidebar on small screens (mobile) */
 @media screen and (max-width: 1024px) {
   .sidebar-container {
-      right: auto; /* Remove right positioning */
-      left: 0; /* Align to the left */
-      transform: translateX(-100%);
+      transform: translateX(-100%); /* Hide off-screen on the left */
   }
   
   .sidebar-container.open {

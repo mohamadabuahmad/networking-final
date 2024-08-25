@@ -189,6 +189,7 @@ app.post('/verify-answers', async (req, res) => {
   }
 });
 
+
 // Endpoint to add a new post
 app.post('/add-post', async (req, res) => {
   const { user_id, post_content, post_date, likes_num, comments_num } = req.body;
@@ -222,7 +223,36 @@ app.post('/add-post', async (req, res) => {
     return res.status(500).send({ message: 'Failed to add post' });
   }
 });
+app.get('/posts', async (req, res) => {
+  try {
+    const { userId, page = 1, limit = 10 } = req.query; // Get userId, page, and limit from query parameters
 
+    // Fetch the list of people the user follows
+    const user = await db.collection('users').findOne({ _id: userId });
+    const following = user.following || []; // Assuming 'following' is an array of user IDs the user follows
+
+    // Fetch the limited number of posts from followed users, sorted by date
+    const posts = await db.collection('posts')
+                          .find({ user_id: { $in: following } })
+                          .sort({ post_date: -1 })
+                          .skip((page - 1) * limit)
+                          .limit(parseInt(limit))
+                          .toArray();
+
+    // Fetch comments and likes for the retrieved posts
+    const postIds = posts.map(post => post._id.toString());
+    const comments = await db.collection('comments').find({ post_id: { $in: postIds } }).toArray();
+    const likes = await db.collection('likes').find({ post_id: { $in: postIds } }).toArray();
+
+    res.json({ posts, comments, likes });
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    return res.status(500).send({ message: 'Failed to fetch posts' });
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/*
 // Endpoint to fetch posts with user information
 app.get('/posts', async (req, res) => {
   try {
@@ -233,7 +263,7 @@ app.get('/posts', async (req, res) => {
     return res.status(500).send({ message: 'Failed to fetch posts' });
   }
 });
-
+*/
 /*
 app.get('/fetch-data', async (req, res) => {
   try {

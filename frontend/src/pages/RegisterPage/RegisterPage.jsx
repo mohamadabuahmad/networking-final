@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../UserContext';
 import {
@@ -10,6 +10,7 @@ import {
   handleRegister,
   questionOptions,
 } from './registerUtils';
+import Webcam from 'react-webcam';
 import './RegisterPage.css';
 
 const RegisterPage = () => {
@@ -31,8 +32,29 @@ const RegisterPage = () => {
   const [skill, setSkill] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [usingWebcam, setUsingWebcam] = useState(false);
+  const webcamRef = useRef(null);
   const navigate = useNavigate();
   const { setCurrentUser } = useUser();
+
+  // Handle image upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, photo: reader.result });
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle capture from webcam
+  const handleCapture = () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setFormData({ ...formData, photo: imageSrc });
+    setUsingWebcam(false); // Switch back to file upload
+  };
 
   return (
     <div className="register-container">
@@ -123,14 +145,36 @@ const RegisterPage = () => {
               />
             </div>
             <div className="register-field">
-              <label>Photo URL</label>
-              <input
-                type="text"
-                name="photo"
-                value={formData.photo}
-                onChange={(e) => handleChange(e, formData, setFormData)}
-                required
-              />
+              <label>Photo</label>
+              {usingWebcam ? (
+                <div>
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    className="webcam"
+                  />
+                  <button type="button" onClick={handleCapture} className="capture-button">
+                    Capture Photo
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setUsingWebcam(true)}
+                    className="webcam-button"
+                  >
+                    Use Webcam
+                  </button>
+                </div>
+              )}
             </div>
             <button
               type="button"

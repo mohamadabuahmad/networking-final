@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage/HomePage.jsx';
-import LoginPage from './pages/LoginPage/LoginPage';
-import RegisterPage from './pages/RegisterPage/RegisterPage';
-import ProfilePage from './pages/ProfilePage/ProfilePage';
-import FriendsPage from './pages/FriendsPage/FriendsPage';
-import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
-import SettingsPage from './pages/SettingsPage/SettingsPage';
-import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage';
+import LoginPage from './pages/LoginPage/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage/RegisterPage.jsx';
+import ProfilePage from './pages/ProfilePage/ProfilePage.jsx';
+import FriendsPage from './pages/FriendsPage/FriendsPage.jsx';
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage.jsx';
+import SettingsPage from './pages/SettingsPage/SettingsPage.jsx';
+import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage.jsx';
 import MessagingPage from './pages/MessagingPage';
-import Sidebar from './pages/Sidebar/Sidebar';
+import Sidebar from './pages/Sidebar/Sidebar.js';
 import { UserProvider } from './pages/UserContext';
 import { Outlet } from 'react-router-dom';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
 function App() {
   const [auth, setAuth] = useState(false);
 
@@ -51,24 +52,31 @@ const MainLayout = ({ auth }) => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col min-h-screen">
       {/* Toggle button for mobile devices */}
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden p-4 bg-gray-800 text-white"
-      >
-        Toggle Sidebar
-      </button>
+      <div className="p-4 bg-gray-800 text-white flex justify-between lg:hidden">
+        <button onClick={toggleSidebar}>
+          <FontAwesomeIcon icon={faBars} className="h-6 w-6" />
+        </button>
+      </div>
 
-      {/* Sidebar component with toggle functionality */}
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className="flex flex-grow">
+        {/* Sidebar component with toggle functionality */}
+        <Sidebar
+          isOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+        />
 
-      {/* Main content area */}
-      <div className={`flex-grow p-6 ${isSidebarOpen ? 'ml-64' : 'ml-5 lg:ml-64'}`}>
-        <Outlet />
+        {/* Main content area */}
+        <div className={`flex-grow p-6 transition-all duration-300 lg:ml-10`}>
+          <Outlet />
+        </div>
       </div>
     </div>
   );
 };
+
+
 
 export default App;

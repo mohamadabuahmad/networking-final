@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
     enrichPostsData, 
-    addPost as addPostUtility
+    addPost as addPostUtility,
+    addLike,
+    removeLike,  // Assuming you have a removeLike utility function
+    addComment
 } from './homepageutilities.jsx';
 
 import './HomePage.css';
@@ -18,6 +21,8 @@ function HomePage() {
     const [sidebarTitle, setSidebarTitle] = useState('');
     const [message, setMessage] = useState('');
     const [darkMode, setDarkMode] = useState(false);
+    const [commentContents, setCommentContents] = useState({});
+    const [likedPosts, setLikedPosts] = useState({}); // State to track liked posts
 
     // Load theme from localStorage on mount
     useEffect(() => {
@@ -28,14 +33,6 @@ function HomePage() {
         }
     }, []);
 
-    // Toggle dark mode and update localStorage
-    const toggleDarkMode = () => {
-        const newTheme = darkMode ? 'light' : 'dark';
-        setDarkMode(!darkMode);
-        document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', newTheme);
-    };
-
     // Fetch data on component mount
     useEffect(() => {
         const fetchData = async () => {
@@ -44,13 +41,22 @@ function HomePage() {
                 const { posts, comments, likes } = response.data;
                 const enrichedPosts = await enrichPostsData(posts, comments, likes);
                 setPosts(enrichedPosts);
+
+                // Update likedPosts state based on initial data
+                const userLikes = likes.reduce((acc, like) => {
+                    if (like.user === currentUser.user_id) {
+                        acc[like.post_id] = true;
+                    }
+                    return acc;
+                }, {});
+                setLikedPosts(userLikes);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
 
         fetchData();
-    }, []);
+    }, [currentUser]);
 
     // Add a new post
     const addPost = async () => {
@@ -58,6 +64,32 @@ function HomePage() {
         if (success) {
             setPostContent('');
         }
+    };
+
+    // Handle like/unlike action
+    const handleLikeToggle = async (postId) => {
+        if (likedPosts[postId]) {
+            // If already liked, remove the like
+            await removeLike(postId, currentUser, posts, setPosts);
+            setLikedPosts(prev => ({ ...prev, [postId]: false }));
+        } else {
+            // If not liked, add the like
+            await addLike(postId, currentUser, posts, setPosts);
+            setLikedPosts(prev => ({ ...prev, [postId]: true }));
+        }
+    };
+
+    // Add a comment to a post
+    const handleAddComment = async (postId) => {
+        if (commentContents[postId]?.trim()) {
+            await addComment(postId, commentContents[postId], currentUser, posts, setPosts);
+            setCommentContents(prev => ({ ...prev, [postId]: '' }));
+        }
+    };
+
+    // Handle comment content change
+    const handleCommentChange = (postId, content) => {
+        setCommentContents(prev => ({ ...prev, [postId]: content }));
     };
 
     // Show comments sidebar
@@ -77,12 +109,6 @@ function HomePage() {
     return (
         <div className={`container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
             <h1 className="title">Welcome to the Home Page</h1>
-            <button
-                onClick={toggleDarkMode}
-                className={`button ${darkMode ? 'dark-mode-button' : 'light-mode-button'}`}
-            >
-                {darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            </button>
 
             <div>
                 {message && <p>{message}</p>}
@@ -99,6 +125,7 @@ function HomePage() {
                     Post
                 </button>
             </div>
+            <br></br>
 
             <div className="space-y-4">
                 {posts.map(post => (
@@ -121,6 +148,30 @@ function HomePage() {
                             >
                                 Comments: {post.comments.length}
                             </span>
+                        </div>
+                        <div className="flex flex-col mt-4 space-y-4 items-start">
+                            <div className="flex-grow w-full">
+                                <textarea
+                                    value={commentContents[post.post_id] || ''}
+                                    onChange={(e) => handleCommentChange(post.post_id, e.target.value)}
+                                    className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-300 ease-in-out"
+                                    placeholder="Add a comment..."
+                                />
+                            </div>
+                            <div className="flex space-x-4">
+                                <button
+                                    onClick={() => handleLikeToggle(post.post_id)}
+                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition duration-300 ease-in-out"
+                                >
+                                    {likedPosts[post.post_id] ? 'Unlike' : 'Like'}
+                                </button>
+                                <button
+                                    onClick={() => handleAddComment(post.post_id)}
+                                    className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out"
+                                >
+                                    Comment
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))}
