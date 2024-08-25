@@ -809,35 +809,6 @@ app.post('/update-user', async (req, res) => {
   }
 });
 
-const multer = require('multer');
-const path = require('path');
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Directory to save uploaded files
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
-});
-
-const upload = multer({ storage: storage });
-
-app.post('/upload-photo', upload.single('photo'), async (req, res) => {
-  const { user_id } = req.body;
-  const photoUrl = path.join('/uploads', req.file.filename); // Store the file path
-
-  try {
-    await db.collection('users').updateOne(
-      { _id: new ObjectId(user_id) },
-      { $set: { photo: photoUrl } }
-    );
-    res.json({ success: true, photoUrl });
-  } catch (err) {
-    console.error('Error uploading photo:', err);
-    res.status(500).json({ success: false, message: 'Error uploading photo' });
-  }
-});
 
 
 /*

@@ -20,20 +20,16 @@ export const fetchUserSkills = async (userId, setSkills, setError) => {
   }
 };
 
-export const handleEditClick = async (field, userData, setUserData, editingField, setEditingField, currentUser, setError) => {
-  if (editingField === field) {
+export const handleEditClick = async (field, userData, setUserData, setEditingField, currentUser, setError) => {
+  if (field === setEditingField) {
     try {
       const response = await axios.post('/update-user', {
         user_id: currentUser.user_id,
         field,
         value: userData[field],
       });
-      if (response.data.success) {
-        setUserData({ ...userData, [field]: response.data.value });
-        setEditingField('');
-      } else {
-        setError('Failed to update user data');
-      }
+      setUserData({ ...userData, [field]: response.data.value });
+      setEditingField('');
     } catch (error) {
       setError('Error updating user data');
       console.error('Error updating user data:', error);
@@ -54,48 +50,20 @@ export const handleSkillChange = (e, setNewSkill) => {
 export const addSkill = async (newSkill, setSkills, skills, currentUser, setNewSkill, setError) => {
   if (newSkill.trim() !== '') {
     try {
-      const response = await axios.post('/add-skill', { user_id: currentUser.user_id, skill: newSkill });
-      if (response.data.success) {
-        setSkills([...skills, newSkill]);
-        setNewSkill('');
-      } else {
-        setError('Failed to add skill');
-      }
+      await axios.post('/add-skill', { user_id: currentUser.user_id, skill: newSkill });
+      setSkills([...skills, newSkill]);
+      setNewSkill('');
     } catch (error) {
       setError('Error adding skill');
       console.error('Error adding skill:', error);
     }
   }
 };
-export const uploadPhoto = async (file, userId, setUserData, setError) => {
-  const formData = new FormData();
-  formData.append('photo', file);
-  formData.append('user_id', userId);
 
-  try {
-    const response = await axios.post('/upload-photo', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    if (response.data.success) {
-      setUserData(prevData => ({ ...prevData, photo: response.data.photoUrl }));
-    } else {
-      setError('Failed to upload photo');
-    }
-  } catch (error) {
-    setError('Error uploading photo');
-    console.error('Error uploading photo:', error);
-  }
-};
 export const removeSkill = async (skillToRemove, setSkills, skills, currentUser, setError) => {
   try {
-    const response = await axios.post('/remove-skill', { user_id: currentUser.user_id, skill: skillToRemove });
-    if (response.data.success) {
-      setSkills(skills.filter(skill => skill !== skillToRemove));
-    } else {
-      setError('Failed to remove skill');
-    }
+    await axios.post('/remove-skill', { user_id: currentUser.user_id, skill: skillToRemove });
+    setSkills(skills.filter(skill => skill !== skillToRemove));
   } catch (error) {
     setError('Error removing skill');
     console.error('Error removing skill:', error);
