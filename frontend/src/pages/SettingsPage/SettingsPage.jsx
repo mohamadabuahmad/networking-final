@@ -41,7 +41,7 @@ const SettingsPage = () => {
         });
 
         if (response.data.success) {
-          setUserData({ ...userData, photo: response.data.photoUrl });
+          setUserData({ ...userData, photo: response.data.photo });
           setEditingField('');
         } else {
           setError('Failed to upload photo');
@@ -90,13 +90,12 @@ const SettingsPage = () => {
                         className="settings-field-input"
                       />
                     ) : (
-                      
                       <input
-                      type="file"
-                      onChange={(event) => handleImageChange(event, currentUser.user_id, setUserData, setError)}
-                      accept="image/*"
-                    />
-                    
+                        type="text"
+                        value={value}
+                        onChange={(e) => handleInputChange(e, field, userData, setUserData)}
+                        className="settings-field-input"
+                      />
                     )
                   ) : (
                     field === 'photo' ? (
