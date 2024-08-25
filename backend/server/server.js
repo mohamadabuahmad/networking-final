@@ -349,13 +349,13 @@ app.get('/fetch-data', async (req, res) => {
   try {
     const { userId, limit, skip } = req.query; // Get userId, limit, and skip from query parameters
 
-    // Fetch the user's friends' IDs
+    // Fetch the user's friends' IDs as strings
     const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
-    const friendIds = friends.map(friend => new ObjectId(friend.friend_id));
+    const friendIds = friends.map(friend => friend.friend_id.toString()); // Convert ObjectId to string
 
     // Fetch posts by friends, sorted by date, and limited by pagination
     const posts = await db.collection('posts')
-      .find({ user_id: { $in: friendIds } })
+      .find({ user_id: { $in: friendIds } }) // Compare with string user_id in posts collection
       .sort({ post_date: -1 })
       .skip(parseInt(skip) || 0) // Skip a number of documents (for pagination)
       .limit(parseInt(limit) || 10) // Limit the number of documents to fetch
