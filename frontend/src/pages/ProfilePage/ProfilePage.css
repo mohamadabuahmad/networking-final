@@ -1,31 +1,58 @@
 .profile-page-container {
-    flex-grow: 1;
-    padding: 1.5rem; /* p-6 */
-  }
-  
-  .profile-page-title {
-    font-size: 1.875rem; /* text-3xl */
-    margin-bottom: 1.5rem; /* mb-6 */
-  }
-  
-  .profile-page-photo {
-    margin-bottom: 1rem; /* mb-4 */
-    border-radius: 9999px; /* rounded-full */
-    width: 8rem; /* w-32 */
-    height: 8rem; /* h-32 */
-    object-fit: cover; /* object-cover */
-  }
-  
-  .profile-page-info {
-    margin-bottom: 0.5rem;
-  }
-  
-  .profile-page-error {
-    padding: 1.5rem; /* p-6 */
-    color: #f56565; /* text-red-500 */
-  }
-  
-  .profile-page-loading {
-    padding: 1.5rem; /* p-6 */
-  }
-  
+  --font-family: 'Roboto', sans-serif;
+  --background-color-light: #f0f4f8; /* Soft, light gray background */
+  --text-color-light: #2c3e50; /* Darker text for better readability */
+  --primary-color-light: #2980b9; /* Professional blue for primary elements */
+  --border-color-light: #d1d8e0; /* Light gray border */
+  --shadow-light: rgba(0, 0, 0, 0.05); /* Subtle shadow for a softer look */
+
+  font-family: var(--font-family);
+  background-color: var(--background-color-light);
+  color: var(--text-color-light);
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+.profile-page-title {
+  font-size: 2.8rem;
+  margin-bottom: 30px;
+  color: var(--primary-color-light);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid var(--primary-color-light);
+  padding-bottom: 10px;
+}
+
+.profile-page-photo {
+  display: block;
+  margin: 0 auto 30px;
+  max-width: 160px;
+  border-radius: 50%;
+  border: 4px solid var(--primary-color-light);
+  box-shadow: 0 4px 8px var(--shadow-light);
+  transition: transform 0.3s ease;
+}
+
+.profile-page-photo:hover {
+  transform: scale(1.05);
+}
+
+.profile-page-info {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color-light);
+  background-color: var(--primary-color-light); /* White background for contrast */
+  color: var(--text-color-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.profile-page-info strong {
+  color: var(--text-color-light);
+}

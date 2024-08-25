@@ -125,7 +125,8 @@ function HomePage() {
 
     return (
         <div className={`container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
-            <h1 className="title">Welcome to the Home Page</h1>
+            <h1 className="title">Welcome to Your Professional Network</h1>
+
 
             <div>
                 {message && <p>{message}</p>}
