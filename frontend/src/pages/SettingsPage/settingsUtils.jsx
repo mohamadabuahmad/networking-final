@@ -20,24 +20,35 @@ export const fetchUserSkills = async (userId, setSkills, setError) => {
   }
 };
 
-export const handleEditClick = async (field, userData, setUserData, setEditingField, currentUser, setError) => {
-  if (field === setEditingField) {
+export const handleEditClick = (field, userData, setUserData, editingField, setEditingField, currentUser, setError) => {
+  if (editingField === field) {
     try {
-      const response = await axios.post('/update-user', {
+      axios.post('/update-user', {
         user_id: currentUser.user_id,
         field,
         value: userData[field],
+      })
+      .then(response => {
+        if (response.data.success) {
+          setUserData({ ...userData, [field]: response.data.value });
+          setEditingField('');  // End editing mode after successful update
+        } else {
+          setError(response.data.message);
+        }
+      })
+      .catch(err => {
+        setError('Error updating user data');
+        console.error('Error updating user data:', err);
       });
-      setUserData({ ...userData, [field]: response.data.value });
-      setEditingField('');
     } catch (error) {
       setError('Error updating user data');
       console.error('Error updating user data:', error);
     }
   } else {
-    setEditingField(field);
+    setEditingField(field);  // Enter editing mode
   }
 };
+
 
 export const handleInputChange = (e, field, userData, setUserData) => {
   setUserData({ ...userData, [field]: e.target.value });
