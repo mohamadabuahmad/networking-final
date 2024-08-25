@@ -134,21 +134,6 @@ app.post('/login', (req, res) => {
         res.json({ message: 'Login successful', user: result });
     });
 });
-const multer = require('multer');
-const path = require('path');
-
-// Configure Multer storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, 'uploads')); // Save the uploaded files in the 'uploads' directory
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`); // Name the file with the current timestamp and original name
-    }
-});
-
-// Initialize upload middleware
-const upload = multer({ storage: storage });
 
 app.post('/update-photo', async (req, res) => {
   const { user_id, photo } = req.body;
