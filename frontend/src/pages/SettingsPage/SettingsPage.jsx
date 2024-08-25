@@ -89,12 +89,13 @@ const SettingsPage = () => {
                         className="settings-field-input"
                       />
                     ) : (
+                      
                       <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => handleInputChange(e, field, userData, setUserData)}
-                        className="settings-field-input"
-                      />
+                      type="file"
+                      onChange={(event) => handleImageChange(event, currentUser.user_id, setUserData, setError)}
+                      accept="image/*"
+                    />
+                    
                     )
                   ) : (
                     field === 'photo' ? (

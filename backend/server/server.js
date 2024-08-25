@@ -134,7 +134,27 @@ app.post('/login', (req, res) => {
         res.json({ message: 'Login successful', user: result });
     });
 });
+app.post('/update-photo', async (req, res) => {
+  const { user_id, photo } = req.body;
 
+  try {
+      const updateObject = { photo };
+
+      const result = await db.collection('users').updateOne(
+          { _id: new ObjectId(user_id) },
+          { $set: updateObject }
+      );
+
+      if (result.modifiedCount === 1) {
+          res.json({ success: true, message: 'User photo updated successfully', photo });
+      } else {
+          res.json({ success: false, message: 'User not found' });
+      }
+  } catch (err) {
+      console.error('Error updating user photo:', err);
+      res.status(500).json({ success: false, message: 'Error updating user photo' });
+  }
+});
 // Endpoint to handle forgot password
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
