@@ -60,3 +60,29 @@
 .comment-section {
   margin-top: 1rem;
 }
+.load-more-button {
+  display: block; /* Makes the button take up the full width of its container */
+  margin: 0 auto; /* Centers the button horizontally */
+  padding: 10px 20px; /* Adds some padding for better click area */
+  font-size: 16px; /* Adjusts the font size */
+  font-weight: bold; /* Makes the text bold */
+  color: #ffffff; /* Text color */
+  background-color: #007bff; /* Button background color */
+  border: none; /* Removes the default border */
+  border-radius: 8px; /* Adds rounded corners */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  transition: background-color 0.3s ease; /* Adds a transition for the background color */
+}
+
+.load-more-button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.load-more-button:focus {
+  outline: none; /* Removes the outline when the button is focused */
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25); /* Adds a focus ring */
+}
+
+.load-more-button:active {
+  background-color: #004494; /* Even darker shade when the button is active */
+}

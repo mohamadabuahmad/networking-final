@@ -784,6 +784,34 @@ app.post('/mark-notification-seen', async (req, res) => {
   }
 });
 
+
+app.post('/update-user', async (req, res) => {
+  const { user_id, field, value } = req.body;
+  
+  try {
+    // Create the update object dynamically
+    const updateObject = { [field]: value };
+
+    // Update the user document in the 'users' collection
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(user_id) },
+      { $set: updateObject }
+    );
+
+    if (result.modifiedCount === 1) {
+      res.json({ success: true, message: 'User data updated successfully', value });
+    } else {
+      res.json({ success: false, message: 'User not found' });
+    }
+  } catch (err) {
+    console.error('Error updating user data:', err);
+    res.status(500).json({ success: false, message: 'Error updating user data' });
+  }
+});
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
 // Endpoint to update user details
 app.post('/update-user', async (req, res) => {
   const { user_id, field, value } = req.body;
@@ -808,7 +836,7 @@ app.post('/update-user', async (req, res) => {
     return res.status(500).send('Error updating user data');
   }
 });
-
+*/
 // Endpoint to fetch user details by user_id
 app.get('/user/:userId', async (req, res) => {
   const userId = req.params.userId;
