@@ -8,6 +8,7 @@ import {
   handleSkillChange,
   addSkill,
   removeSkill,
+  handleImageChange,
 } from './settingsUtils';
 import './SettingsPage.css';
 import axios from '../../api/axios';

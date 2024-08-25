@@ -96,18 +96,36 @@ export const removeSkill = async (skillToRemove, setSkills, skills, currentUser,
     console.error('Error removing skill:', error);
   }
 };
-export const handleImageChange = (event, setFormData, setError) => {
+export const handleImageChange = async (event, userId, setUserData, setError) => {
   const file = event.target.files[0];
 
-  // Validate file type and size
-  if (file && (file.type.startsWith('image/'))) {
-    // Optional: Check file size (e.g., limit to 2MB)
+  if (file && file.type.startsWith('image/')) {
     if (file.size <= 2 * 1024 * 1024) {
-      setFormData(prevFormData => ({
-        ...prevFormData,
-        photo: file
-      }));
-      setError(null); // Clear any previous error
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+
+        try {
+          const response = await axios.post('/update-photo', {
+            user_id: userId,
+            photo: base64Image // Send the base64 string
+          });
+
+          if (response.data.success) {
+            setUserData(prevUserData => ({
+              ...prevUserData,
+              photo: response.data.photo,
+            }));
+            setError(null);
+          } else {
+            setError(response.data.message);
+          }
+        } catch (err) {
+          setError('Error updating user photo');
+          console.error('Error updating user photo:', err);
+        }
+      };
+      reader.readAsDataURL(file);
     } else {
       setError('File size should be less than 2MB');
     }
