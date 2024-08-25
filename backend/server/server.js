@@ -227,13 +227,17 @@ app.get('/posts', async (req, res) => {
   try {
     const { userId, page = 1, limit = 10 } = req.query; // Get userId, page, and limit from query parameters
 
-    // Fetch the list of people the user follows
-    const user = await db.collection('users').findOne({ _id: userId });
-    const following = user.following || []; // Assuming 'following' is an array of user IDs the user follows
+    // Fetch friend IDs
+    const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
+    const friendIds = friends.map(friend => new ObjectId(friend.friend_id));
 
-    // Fetch the limited number of posts from followed users, sorted by date
+    if (friendIds.length === 0) {
+      return res.json({ posts: [], comments: [], likes: [] }); // No friends, so no posts to show
+    }
+
+    // Fetch the limited number of posts from friends, sorted by date
     const posts = await db.collection('posts')
-                          .find({ user_id: { $in: following } })
+                          .find({ user_id: { $in: friendIds } })
                           .sort({ post_date: -1 })
                           .skip((page - 1) * limit)
                           .limit(parseInt(limit))
