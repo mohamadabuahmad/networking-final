@@ -16,7 +16,7 @@ app.use(cors({
   credentials: true // Allow cookies and other credentials
 }));
 
-
+app.use(bodyParser.json());
 // Database connection
 let db;
 connectToDb((err) => {
