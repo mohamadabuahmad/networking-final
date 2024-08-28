@@ -458,6 +458,43 @@ app.get('/fetch-data', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch data' });
   }
 });
+export const enrichPostsData = async (posts = [], comments = [], likes = []) => {
+  // Check if posts, comments, and likes are properly defined
+  if (!Array.isArray(posts) || !Array.isArray(comments) || !Array.isArray(likes)) {
+    console.error('Invalid input data for enrichPostsData function.');
+    return [];
+  }
+
+  const enrichedPosts = await Promise.all(posts.map(async (post) => {
+    const username = await fetchUsername(post.user_id);
+
+    const postLikes = await Promise.all((likes || []).filter(like => like.post_id === post._id.toString()).map(async (like) => {
+      const likeUsername = await fetchUsername(like.user_id);
+      return { ...like, username: likeUsername };
+    }));
+
+    const postComments = await Promise.all((comments || []).filter(comment => comment.post_id === post._id.toString()).map(async (comment) => {
+      const commentUsername = await fetchUsername(comment.user_id);
+      return {
+        ...comment,
+        username: commentUsername,
+        comment_id: comment.comment_id,
+      };
+    }));
+
+    return new Post(
+      post.user_id,
+      username,
+      post._id.toString(),
+      post.post_content,
+      post.post_date,
+      postLikes.map(like => new Like(like.post_id, like.user_id, like.username)),
+      postComments
+    );
+  }));
+
+  return enrichedPosts;
+};
 
 app.get('/post/:postId', async (req, res) => {
   const { postId } = req.params;
