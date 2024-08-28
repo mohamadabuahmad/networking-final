@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import axios from '../api/axios';
@@ -22,45 +21,37 @@ const MessagingPage = () => {
         fetchChatHistory(selectedUser._id);
       },
       onClose: () => console.log('WebSocket connection closed'),
-  onMessage: (message) => {
-  console.log('Received message:', message);
-  
-  if (message.data instanceof Blob) {
-    // If the data is a Blob, convert it to text
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = reader.result;
-      try {
-        const messageData = JSON.parse(text);
-        console.log('Parsed message data from Blob:', messageData);
-        if (messageData.sender_id === selectedUser._id) {
-          appendMessageToHistory(messageData.sender_id, messageData);
-          console.log('Message appended to history:', messageData);
-        } else {
-          console.warn('Received message from a different user:', messageData.sender_id);
+      onMessage: (message) => {
+        console.log('Received message:', message);
+        if (message.data instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const text = reader.result;
+            try {
+              const messageData = JSON.parse(text);
+              if (messageData.sender_id === selectedUser._id) {
+                appendMessageToHistory(messageData.sender_id, messageData);
+              } else {
+                console.warn('Received message from a different user:', messageData.sender_id);
+              }
+            } catch (error) {
+              console.error('Error parsing message from Blob:', error);
+            }
+          };
+          reader.readAsText(message.data);
+        } else if (typeof message.data === 'string') {
+          try {
+            const messageData = JSON.parse(message.data);
+            if (messageData.sender_id === selectedUser._id) {
+              appendMessageToHistory(messageData.sender_id, messageData);
+            } else {
+              console.warn('Received message from a different user:', messageData.sender_id);
+            }
+          } catch (error) {
+            console.error('Error parsing message:', error);
+          }
         }
-      } catch (error) {
-        console.error('Error parsing message from Blob:', error);
-      }
-    };
-    reader.readAsText(message.data);
-  } else if (typeof message.data === 'string') {
-    try {
-      const messageData = JSON.parse(message.data);
-      console.log('Parsed message data:', messageData);
-      if (messageData.sender_id === selectedUser._id) {
-        appendMessageToHistory(messageData.sender_id, messageData);
-        console.log('Message appended to history:', messageData);
-      } else {
-        console.warn('Received message from a different user:', messageData.sender_id);
-      }
-    } catch (error) {
-      console.error('Error parsing message:', error);
-    }
-  }
-},
-
-
+      },
     }
   );
 
@@ -96,8 +87,6 @@ const MessagingPage = () => {
 
   // Start a chat with the selected user
   const startChat = (user) => {
-    console.log('start chat ->> currentuser:'+ currentUser.user_id);
-    console.log('start chat ->> selected user: '+user._id);
     setSelectedUser(user);
     if (!chatHistories[user._id]) {
       fetchChatHistory(user._id);
@@ -161,7 +150,6 @@ const MessagingPage = () => {
     };
   };
 
-  // Handle receiving an offer for WebRTC
   const handleOffer = async (offer) => {
     const peerConnection = peerConnectionRef.current;
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
@@ -170,24 +158,20 @@ const MessagingPage = () => {
     sendMessage(JSON.stringify({ answer: peerConnection.localDescription }));
   };
 
-  // Handle receiving an answer for WebRTC
   const handleAnswer = async (answer) => {
     const peerConnection = peerConnectionRef.current;
     await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
   };
 
-  // Handle receiving an ICE candidate for WebRTC
   const handleCandidate = async (candidate) => {
     const peerConnection = peerConnectionRef.current;
     await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
   };
 
-  // Fetch chat history with a specific user
   const fetchChatHistory = async (userId) => {
     setChatHistories(prev => ({ ...prev, [userId]: [] }));
   };
 
-  // Append a new message to the chat history
   const appendMessageToHistory = (userId, messageData) => {
     setChatHistories(prev => ({
       ...prev,
@@ -195,12 +179,9 @@ const MessagingPage = () => {
     }));
   };
 
-  // Send a message to the WebSocket server
   const handleSendMessage = () => {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value;
-    console.log('handleSendMessage --> currentuser :'+currentUser.user_id);
-    console.log('handleSendMessage --> selectedUser :'+selectedUser._id);
     const messageData = {
       sender_id: currentUser.user_id,
       receiver_id: selectedUser._id,
@@ -208,20 +189,11 @@ const MessagingPage = () => {
       sender: 'You'
     };
 
-    console.log("handleSendMessage --> message data : sender_id="+currentUser.user_id+"receiver_id = "+ selectedUser._id);
-
     sendMessage(JSON.stringify(messageData));
     appendMessageToHistory(selectedUser._id, messageData);
     messageInput.value = '';
   };
 
-  // Handle Blob data received via WebSocket (e.g., for video streams)
-  const handleBlobData = async (blob) => {
-    const arrayBuffer = await blob.arrayBuffer();
-    console.log('Received binary data:', arrayBuffer);
-  };
-
-  // Connection status for the WebSocket
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
     [ReadyState.OPEN]: 'Open',
@@ -235,21 +207,21 @@ const MessagingPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex flex-col md:flex-row min-h-screen">
       {/* First Column: Search and Friends List */}
-      <div className="w-1/3 p-4 bg-gray-100">
+      <div className="md:w-1/3 p-4 bg-gray-100">
         {/* Search Users Section */}
         <div className="mb-6">
           <h2 className="text-2xl mb-4">Search Users</h2>
-          <div className="flex mb-4">
+          <div className="flex flex-col md:flex-row mb-4">
             <input
               type="text"
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               placeholder="Enter username"
-              className="flex-grow p-2 border rounded"
+              className="flex-grow p-2 border rounded mb-2 md:mb-0"
             />
-            <button onClick={searchUsers} className="bg-blue-600 text-white px-4 py-2 rounded ml-2">Search</button>
+            <button onClick={searchUsers} className="bg-blue-600 text-white px-4 py-2 rounded ml-0 md:ml-2">Search</button>
           </div>
           {searchResults.length > 0 && (
             <table className="min-w-full bg-white">
@@ -263,7 +235,7 @@ const MessagingPage = () => {
                 {searchResults.map(user => (
                   <tr key={user.user_id}>
                     <td className="py-2 px-4 border-b">{user.user_name}</td>
-                    <td className="py-2 px-4 border-b flex space-x-2">
+                    <td className="py-2 px-4 border-b flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                       <button
                         onClick={() => startChat(user)}
                         className="bg-blue-500 text-white px-3 py-1 rounded"
@@ -298,7 +270,7 @@ const MessagingPage = () => {
               {friends.map(friend => (
                 <tr key={friend.user_id}>
                   <td className="py-2 px-4 border-b">{friend.user_name}</td>
-                  <td className="py-2 px-4 border-b flex space-x-2">
+                  <td className="py-2 px-4 border-b flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
                     <button
                       onClick={() => startChat(friend)}
                       className="bg-blue-500 text-white px-3 py-1 rounded"
@@ -320,20 +292,19 @@ const MessagingPage = () => {
       </div>
 
       {/* Second Column: Chat Area */}
-      <div className="w-2/3 p-4">
+      <div className="md:w-2/3 p-4">
         {selectedUser ? (
           <div>
             <h2 className="text-2xl mb-4">Chat with {selectedUser.user_name}</h2>
             <div className="border p-4 h-full">
               {/* Chat content */}
               <div>
-  {(chatHistories[selectedUser._id] || []).map((msg, index) => (
-    <p key={`${msg.sender_id}-${index}`}>
-      {msg.sender_id === currentUser.user_id ? 'You' : selectedUser.user_name}: {msg.message}
-    </p>
-  ))}
-</div>
-
+                {(chatHistories[selectedUser._id] || []).map((msg, index) => (
+                  <p key={`${msg.sender_id}-${index}`}>
+                    {msg.sender_id === currentUser.user_id ? 'You' : selectedUser.user_name}: {msg.message}
+                  </p>
+                ))}
+              </div>
 
               <input type="text" id="messageInput" placeholder="Type your message" className="p-2 border rounded w-full mb-2" />
               <button onClick={handleSendMessage} className="bg-blue-500 text-white px-3 py-1 rounded">Send</button>
@@ -341,9 +312,9 @@ const MessagingPage = () => {
             {isVideoCallActive && (
               <div className="mt-4">
                 <h2 className="text-xl mb-2">Video Call</h2>
-                <div className="flex space-x-4">
-                  <video ref={localVideoRef} autoPlay playsInline className="w-1/2 border" />
-                  <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 border" />
+                <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                  <video ref={localVideoRef} autoPlay playsInline className="w-full md:w-1/2 border" />
+                  <video ref={remoteVideoRef} autoPlay playsInline className="w-full md:w-1/2 border" />
                 </div>
                 <button onClick={endVideoCall} className="bg-red-500 text-white px-3 py-1 rounded mt-2">End Call</button>
               </div>
