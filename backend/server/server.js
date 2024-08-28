@@ -388,18 +388,12 @@ app.get('/fetch-data', async (req, res) => {
     const comments = await db.collection('comments').find({ post_id: { $in: postIds } }).toArray();
     const likes = await db.collection('likes').find({ post_id: { $in: postIds } }).toArray();
 
-    // Print comments and likes for debugging
-    console.log('Fetched Comments:', comments);
-    console.log('Fetched Likes:', likes);
-
     // Map through comments to rename _id to comment_id
     const formattedComments = comments.map(comment => ({
       ...comment,
       comment_id: comment._id.toString(),
       _id: undefined,
     }));
-
-    console.log('Formatted Comments:', formattedComments); // Print formatted comments
 
     res.json({ posts, comments: formattedComments, likes });
   } catch (err) {
