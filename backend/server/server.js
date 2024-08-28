@@ -1141,6 +1141,35 @@ async function addUnfollowNotification(userId, currentUser) {
 
 
 
+const multer = require('multer');
+
+// Configure multer for handling file uploads
+const storage = multer.memoryStorage(); // Stores file in memory as a Buffer
+const upload = multer({ storage: storage });
+
+// Endpoint to update the user's photo
+app.post('/update-photo', upload.single('photo'), async (req, res) => {
+    const { user_id } = req.body; // Get the user ID from the request body
+    const photoBuffer = req.file.buffer; // Get the photo buffer from multer
+
+    try {
+        const updateObject = { photo: photoBuffer }; // Update object with new photo
+
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(user_id) },
+            { $set: updateObject }
+        );
+
+        if (result.modifiedCount === 1) {
+            res.json({ success: true, message: 'User photo updated successfully', photo: photoBuffer });
+        } else {
+            res.json({ success: false, message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('Error updating user photo:', err);
+        res.status(500).json({ success: false, message: 'Error updating user photo' });
+    }
+});
 
 
 
