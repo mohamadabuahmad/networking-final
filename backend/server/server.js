@@ -291,7 +291,7 @@ app.get('/posts', async (req, res) => {
   }
 });
 
-/*
+
 app.get('/fetch-data', async (req, res) => {
   try {
     const posts = await db.collection('posts').find().toArray();
@@ -312,7 +312,7 @@ app.get('/fetch-data', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch data' });
   }
 });
-*/
+
 /*
 app.get('/fetch-data', async (req, res) => {
   try {
@@ -366,6 +366,7 @@ app.get('/user/:userId', async (req, res) => {
 });
 */
 //////////////////////////////////////////////////////////////////////////////////////////////
+/*
 app.get('/fetch-data', async (req, res) => {
   try {
     const { userId, limit, skip } = req.query; // Get userId, limit, and skip from query parameters
@@ -401,7 +402,7 @@ app.get('/fetch-data', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch data' });
   }
 });
-
+*/
 
 app.get('/post/:postId', async (req, res) => {
   const { postId } = req.params;
