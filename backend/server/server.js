@@ -366,7 +366,6 @@ app.get('/user/:userId', async (req, res) => {
 });
 */
 //////////////////////////////////////////////////////////////////////////////////////////////
-/*
 app.get('/fetch-data', async (req, res) => {
   try {
     const { userId, limit, skip } = req.query; // Get userId, limit, and skip from query parameters
@@ -403,98 +402,6 @@ app.get('/fetch-data', async (req, res) => {
   }
 });
 
-*/
-
-
-
-app.get('/fetch-data', async (req, res) => {
-  try {
-    const { userId, limit, skip } = req.query; // Get userId, limit, and skip from query parameters
-
-    // Fetch the user's friends' IDs as strings
-    const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
-    const friendIds = friends.map(friend => friend.friend_id.toString()); // Convert ObjectId to string
-
-    // Fetch posts by friends, sorted by date, and limited by pagination
-    const posts = await db.collection('posts')
-      .find({ user_id: { $in: friendIds } }) // Compare with string user_id in posts collection
-      .sort({ post_date: -1 })
-      .skip(parseInt(skip) || 0) // Skip a number of documents (for pagination)
-      .limit(parseInt(limit) || 10) // Limit the number of documents to fetch
-      .toArray();
-
-    const postIds = posts.map(post => post._id.toString());
-
-    // Fetch comments and likes only for the posts that are being returned
-    const comments = await db.collection('comments').find({ post_id: { $in: postIds } }).toArray();
-    const likes = await db.collection('likes').find({ post_id: { $in: postIds } }).toArray();
-
-    // Group comments by post ID
-    const groupedComments = postIds.reduce((acc, postId) => {
-      acc[postId] = comments.filter(comment => comment.post_id === postId).map(comment => ({
-        ...comment,
-        comment_id: comment._id.toString(),
-        _id: undefined,
-      }));
-      return acc;
-    }, {});
-
-    // Group likes by post ID
-    const groupedLikes = postIds.reduce((acc, postId) => {
-      acc[postId] = likes.filter(like => like.post_id === postId);
-      return acc;
-    }, {});
-
-    // Enrich each post with its comments and likes
-    const enrichedPosts = posts.map(post => ({
-      ...post,
-      comments: groupedComments[post._id.toString()] || [],
-      likes: groupedLikes[post._id.toString()] || [],
-    }));
-
-    res.json({ posts: enrichedPosts });
-  } catch (err) {
-    console.error('Error fetching data:', err);
-    res.status(500).send({ message: 'Failed to fetch data' });
-  }
-});
-export const enrichPostsData = async (posts = [], comments = [], likes = []) => {
-  // Check if posts, comments, and likes are properly defined
-  if (!Array.isArray(posts) || !Array.isArray(comments) || !Array.isArray(likes)) {
-    console.error('Invalid input data for enrichPostsData function.');
-    return [];
-  }
-
-  const enrichedPosts = await Promise.all(posts.map(async (post) => {
-    const username = await fetchUsername(post.user_id);
-
-    const postLikes = await Promise.all((likes || []).filter(like => like.post_id === post._id.toString()).map(async (like) => {
-      const likeUsername = await fetchUsername(like.user_id);
-      return { ...like, username: likeUsername };
-    }));
-
-    const postComments = await Promise.all((comments || []).filter(comment => comment.post_id === post._id.toString()).map(async (comment) => {
-      const commentUsername = await fetchUsername(comment.user_id);
-      return {
-        ...comment,
-        username: commentUsername,
-        comment_id: comment.comment_id,
-      };
-    }));
-
-    return new Post(
-      post.user_id,
-      username,
-      post._id.toString(),
-      post.post_content,
-      post.post_date,
-      postLikes.map(like => new Like(like.post_id, like.user_id, like.username)),
-      postComments
-    );
-  }));
-
-  return enrichedPosts;
-};
 
 app.get('/post/:postId', async (req, res) => {
   const { postId } = req.params;
