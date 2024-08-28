@@ -10,7 +10,7 @@ const port = 3005; // Define the port here
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://networking-final-front.vercel.app', 'https://networking-lotw.vercel.app'], // Correct the origins
+  origin: ['http://localhost:3000', 'https://networking-final-front.vercel.app', 'https://networking-final-u1h6.vercel.app/'], // Correct the origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
   credentials: true // Allow cookies and other credentials
