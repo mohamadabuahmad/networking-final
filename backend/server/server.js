@@ -294,6 +294,57 @@ app.get('/posts', async (req, res) => {
 
 app.get('/fetch-data', async (req, res) => {
   try {
+    const { userId } = req.query; // Get userId from query parameters
+
+    // Ensure the userId is valid
+    if (!userId || !ObjectId.isValid(userId)) {
+      return res.status(400).send({ message: 'Invalid user ID' });
+    }
+
+    // Fetch the user's friends' IDs as strings
+    const friends = await db.collection('friends').find({ user_id: new ObjectId(userId) }).toArray();
+    const friendIds = friends.map(friend => friend.friend_id.toString()); // Convert ObjectId to string
+
+    if (friendIds.length === 0) {
+      // No friends, return empty data
+      return res.json({ posts: [], comments: [], likes: [], users: [] });
+    }
+
+    // Fetch posts by friends, sorted by date
+    const posts = await db.collection('posts')
+      .find({ user_id: { $in: friendIds } }) // Compare with friend IDs
+      .sort({ post_date: -1 })
+      .toArray();
+
+    const postIds = posts.map(post => post._id.toString());
+
+    // Fetch comments and likes only for the posts that are being returned
+    const comments = await db.collection('comments').find({ post_id: { $in: postIds } }).toArray();
+    const likes = await db.collection('likes').find({ post_id: { $in: postIds } }).toArray();
+
+    // Fetch the users associated with these posts
+    const userIds = [...new Set(posts.map(post => post.user_id))]; // Unique user IDs from posts
+    const users = await db.collection('users').find({ _id: { $in: userIds.map(id => new ObjectId(id)) } }).toArray();
+
+    // Map through comments to rename _id to comment_id
+    const formattedComments = comments.map(comment => ({
+      ...comment,
+      comment_id: comment._id.toString(), // Assign _id to comment_id and convert to string
+      _id: undefined, // Optionally remove _id to avoid confusion
+    }));
+
+    res.json({ posts, comments: formattedComments, likes, users });
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    res.status(500).send({ message: 'Failed to fetch data' });
+  }
+});
+
+
+
+/*
+app.get('/fetch-data', async (req, res) => {
+  try {
     const posts = await db.collection('posts').find().toArray();
     const comments = await db.collection('comments').find().toArray();
     const likes = await db.collection('likes').find().toArray();
@@ -312,7 +363,7 @@ app.get('/fetch-data', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch data' });
   }
 });
-
+*/
 /*
 app.get('/fetch-data', async (req, res) => {
   try {
