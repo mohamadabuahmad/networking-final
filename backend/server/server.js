@@ -293,7 +293,7 @@ app.get('/posts', async (req, res) => {
 
 app.get('/fetch-data', async (req, res) => {
   try {
-    const { userId } = req.query; // Get userId from query parameters
+    const { userId, limit = 10, skip = 0 } = req.query; // Get userId, limit, and skip from query parameters
 
     // Ensure the userId is valid
     if (!userId || !ObjectId.isValid(userId)) {
@@ -309,10 +309,12 @@ app.get('/fetch-data', async (req, res) => {
       return res.json({ posts: [], comments: [], likes: [], users: [] });
     }
 
-    // Fetch posts by friends, sorted by date
+    // Fetch posts by friends, sorted by date, and limited by pagination
     const posts = await db.collection('posts')
       .find({ user_id: { $in: friendIds } }) // Compare with friend IDs
       .sort({ post_date: -1 })
+      .skip(parseInt(skip)) // Skip a number of documents (for pagination)
+      .limit(parseInt(limit)) // Limit the number of documents to fetch
       .toArray();
 
     const postIds = posts.map(post => new ObjectId(post._id)); // Convert to ObjectId for matching
@@ -338,6 +340,7 @@ app.get('/fetch-data', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch data' });
   }
 });
+
 
 
 
