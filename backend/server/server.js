@@ -292,6 +292,9 @@ app.get('/posts', async (req, res) => {
 });
 
 
+
+
+
 app.get('/fetch-data', async (req, res) => {
   try {
     const { userId } = req.query; // Get userId from query parameters
@@ -341,29 +344,6 @@ app.get('/fetch-data', async (req, res) => {
 });
 
 
-
-/*
-app.get('/fetch-data', async (req, res) => {
-  try {
-    const posts = await db.collection('posts').find().toArray();
-    const comments = await db.collection('comments').find().toArray();
-    const likes = await db.collection('likes').find().toArray();
-    const users = await db.collection('users').find().toArray();
-
-    // Map through comments to rename _id to comment_id
-    const formattedComments = comments.map(comment => ({
-      ...comment,
-      comment_id: comment._id.toString(), // Assign _id to comment_id and convert to string
-      _id: undefined, // Optionally remove _id to avoid confusion
-    }));
-
-    res.json({ posts, comments: formattedComments, likes, users });
-  } catch (err) {
-    console.error('Error fetching data:', err);
-    res.status(500).send({ message: 'Failed to fetch data' });
-  }
-});
-*/
 /*
 app.get('/fetch-data', async (req, res) => {
   try {
