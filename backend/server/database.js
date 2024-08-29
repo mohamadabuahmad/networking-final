@@ -1,12 +1,17 @@
 const { MongoClient } = require('mongodb');
 
+
 let dbConnection;
-const uri = 'mongodb+srv://mohamdadm25:Domnef-ciwvu7-jutzyr@networking.rgrflkp.mongodb.net/networking?retryWrites=true&w=majority&appName=networking';
+
+const uri = process.env.database;
 const clientOptions = {
     tls: true,
     tlsAllowInvalidCertificates: true,
     tlsAllowInvalidHostnames: true
 };
+
+// Example of using the connection (make sure to add error handling and other necessary configurations)
+
 
 const client = new MongoClient(uri, clientOptions);
 
