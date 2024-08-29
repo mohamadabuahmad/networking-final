@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP , // Fallback in case the environment variable is not set
+  baseURL: 'https://networking-final.vercel.app/' // Ensure this matches your backend port
 });
 
 export default instance;

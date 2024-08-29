@@ -9,21 +9,12 @@ const port = 3005; // Define the port here
 
 // Middleware
 app.use(bodyParser.json());
-const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['http://localhost:3000', 'https://networking-final-front.vercel.app', 'https://networking-final-u1h6.vercel.app/'], // Correct the origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
   credentials: true // Allow cookies and other credentials
 }));
-
 
 app.use(bodyParser.json());
 // Database connection
