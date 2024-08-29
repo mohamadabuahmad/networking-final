@@ -1093,40 +1093,17 @@ app.post('/remove-follow', async (req, res) => {
 });*/
 
 
-
 app.post('/remove-follow', async (req, res) => {
   const { user_id, friend_id, currentUser } = req.body;
-
-  // Log the incoming request data for debugging
-  console.log('Received request to remove follow:', req.body);
-
+  console.log(`Attempting to remove follow: follower_id=${user_id} from user_id=${friend_id}`);
   try {
-    // Validate and convert the IDs to ObjectId
-    const userObjectId = ObjectId.isValid(user_id) ? new ObjectId(user_id) : null;
-    const friendObjectId = ObjectId.isValid(friend_id) ? new ObjectId(friend_id) : null;
-
-    if (!userObjectId || !friendObjectId) {
-      console.error('Invalid user_id or friend_id:', user_id, friend_id);
-      return res.status(400).send('Invalid user_id or friend_id');
-    }
-
-    // Attempt to remove the friend relationship
-    const result = await db.collection('friends').deleteOne({ user_id: userObjectId, friend_id: friendObjectId });
+    // Remove friend relationship
+    const result = await db.collection('friends').deleteOne({ user_id: new ObjectId(user_id), friend_id: new ObjectId(friend_id) });
 
     if (result.deletedCount === 1) {
-      console.log('Successfully removed friend:', friend_id, 'from user:', user_id);
-
-      // Optional: try-catch block for notification
-      try {
-        await addUnfollowNotification(friend_id, currentUser);
-      } catch (notificationError) {
-        console.warn('Failed to send unfollow notification:', notificationError);
-        // Do not fail the main operation if the notification fails
-      }
-
+      //await addUnfollowNotification(friend_id, currentUser);
       res.json({ message: 'Friend removed successfully' });
     } else {
-      console.warn('Friend not found:', friend_id, 'for user:', user_id);
       res.status(404).send('Friend not found');
     }
   } catch (err) {
@@ -1134,7 +1111,6 @@ app.post('/remove-follow', async (req, res) => {
     res.status(500).send('Error removing friend');
   }
 });
-
 
 app.post('/remove-follower', async (req, res) => {
   const { user_id, follower_id } = req.body;
