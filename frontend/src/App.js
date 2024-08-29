@@ -8,7 +8,7 @@ import FriendsPage from './pages/FriendsPage/FriendsPage.jsx';
 import NotificationsPage from './pages/NotificationsPage/NotificationsPage.jsx';
 import SettingsPage from './pages/SettingsPage/SettingsPage.jsx';
 import ForgotPasswordPage from './pages/ForgetPasswordPage/ForgotPasswordPage.jsx';
-import MessagingPage from './pages/MessagingPage';
+import MessagingPage from './pages/messages/MessagingPage.jsx';
 import Sidebar from './pages/Sidebar/Sidebar.js';
 import { UserProvider } from './pages/UserContext';
 import { Outlet } from 'react-router-dom';

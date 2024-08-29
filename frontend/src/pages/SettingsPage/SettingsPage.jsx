@@ -228,46 +228,35 @@ const SettingsPage = () => {
       <div className="settings-section">
         <h2 className="settings-subtitle">User Data</h2>
         <div className="settings-grid">
-          {Object.entries(userData).map(([field, value]) => (
-            field !== '_id' && (
-              <div key={field} className="settings-field-container">
-                <div className="settings-field-title">
-                  <h3>{field}</h3>
-                  <button
-                    onClick={() => handleEditClick(field, userData, setUserData, editingField, setEditingField, currentUser, setError)}
-                    className="settings-button"
-                  >
-                    {editingField === field ? 'Done' : 'Edit'}
-                  </button>
-                </div>
-                <div className="mt-2">
-                  {editingField === field ? (
-                    field === 'photo' ? (
-                      <input
-                        type="file"
-                        onChange={handleImageChange}
-                        className="settings-field-input"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={value}
-                        onChange={(e) => handleInputChange(e, field, userData, setUserData)}
-                        className="settings-field-input"
-                      />
-                    )
-                  ) : (
-                    field === 'photo' ? (
-                      <img src={value} alt="Profile" className="profile-photo" />
-                    ) : (
-                      <p>{renderFieldValue(value)}</p>
-                    )
-                  )}
-                </div>
-              </div>
-            )
-          ))}
+  {Object.entries(userData).map(([field, value]) => (
+    field !== '_id' && field !== 'photo' && ( // Exclude 'photo' field from rendering
+      <div key={field} className="settings-field-container">
+        <div className="settings-field-title">
+          <h3>{field}</h3>
+          <button
+            onClick={() => handleEditClick(field, userData, setUserData, editingField, setEditingField, currentUser, setError)}
+            className="settings-button"
+          >
+            {editingField === field ? 'Done' : 'Edit'}
+          </button>
         </div>
+        <div className="mt-2">
+          {editingField === field ? (
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => handleInputChange(e, field, userData, setUserData)}
+              className="settings-field-input"
+            />
+          ) : (
+            <p>{renderFieldValue(value)}</p>
+          )}
+        </div>
+      </div>
+    )
+  ))}
+</div>
+
       </div>
 
       {/* Skills Section */}
