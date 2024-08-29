@@ -1092,10 +1092,12 @@ app.post('/remove-follow', async (req, res) => {
   }
 });*/
 
+const { ObjectId } = require('mongodb');
+
 app.post('/remove-follow', async (req, res) => {
   const { user_id, friend_id, currentUser } = req.body;
 
-  // Log the received request data
+  // Log the incoming request data for debugging
   console.log('Received request to remove follow:', req.body);
 
   try {
@@ -1113,7 +1115,15 @@ app.post('/remove-follow', async (req, res) => {
 
     if (result.deletedCount === 1) {
       console.log('Successfully removed friend:', friend_id, 'from user:', user_id);
-      await addUnfollowNotification(friend_id, currentUser);
+
+      // Optional: try-catch block for notification
+      try {
+        await addUnfollowNotification(friend_id, currentUser);
+      } catch (notificationError) {
+        console.warn('Failed to send unfollow notification:', notificationError);
+        // Do not fail the main operation if the notification fails
+      }
+
       res.json({ message: 'Friend removed successfully' });
     } else {
       console.warn('Friend not found:', friend_id, 'for user:', user_id);
@@ -1124,6 +1134,7 @@ app.post('/remove-follow', async (req, res) => {
     res.status(500).send('Error removing friend');
   }
 });
+
 
 app.post('/remove-follower', async (req, res) => {
   const { user_id, follower_id } = req.body;
