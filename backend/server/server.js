@@ -1062,7 +1062,7 @@ app.post('/remove-follow', async (req, res) => {
 });
 */
 
-
+/*
 app.post('/remove-follow', async (req, res) => {
   const { user_id, friend_id, currentUser } = req.body;
 
@@ -1090,7 +1090,41 @@ app.post('/remove-follow', async (req, res) => {
     console.error(`Error removing friend: friend_id=${friend_id} for user_id=${user_id}`, err);
     res.status(500).send('Error removing friend');
   }
+});*/
+
+app.post('/remove-follow', async (req, res) => {
+  const { user_id, friend_id, currentUser } = req.body;
+
+  // Log the received request data
+  console.log('Received request to remove follow:', req.body);
+
+  try {
+    // Validate and convert the IDs to ObjectId
+    const userObjectId = ObjectId.isValid(user_id) ? new ObjectId(user_id) : null;
+    const friendObjectId = ObjectId.isValid(friend_id) ? new ObjectId(friend_id) : null;
+
+    if (!userObjectId || !friendObjectId) {
+      console.error('Invalid user_id or friend_id:', user_id, friend_id);
+      return res.status(400).send('Invalid user_id or friend_id');
+    }
+
+    // Attempt to remove the friend relationship
+    const result = await db.collection('friends').deleteOne({ user_id: userObjectId, friend_id: friendObjectId });
+
+    if (result.deletedCount === 1) {
+      console.log('Successfully removed friend:', friend_id, 'from user:', user_id);
+      await addUnfollowNotification(friend_id, currentUser);
+      res.json({ message: 'Friend removed successfully' });
+    } else {
+      console.warn('Friend not found:', friend_id, 'for user:', user_id);
+      res.status(404).send('Friend not found');
+    }
+  } catch (err) {
+    console.error('Error removing friend:', err);
+    res.status(500).send('Error removing friend');
+  }
 });
+
 app.post('/remove-follower', async (req, res) => {
   const { user_id, follower_id } = req.body;
   console.log('Request body:', req.body); // Log the entire request body
