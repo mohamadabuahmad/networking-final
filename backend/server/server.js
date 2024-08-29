@@ -10,7 +10,7 @@ const port = 3005; // Define the port here
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://networking-final-front.vercel.app', 'https://networking-final-u1h6.vercel.app/'], // Correct the origins
+  origin: ['http://localhost:3000', 'https://networking-final-front.vercel.app'], // Correct the origins
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
   credentials: true // Allow cookies and other credentials
@@ -1041,7 +1041,7 @@ app.post('/follow', async (req, res) => {
     res.status(500).send('Error adding friend');
   }
 });
-
+/*
 app.post('/remove-follow', async (req, res) => {
   const { user_id, friend_id, currentUser } = req.body;
 
@@ -1060,7 +1060,37 @@ app.post('/remove-follow', async (req, res) => {
     res.status(500).send('Error removing friend');
   }
 });
+*/
 
+
+app.post('/remove-follow', async (req, res) => {
+  const { user_id, friend_id, currentUser } = req.body;
+
+  // Log the request body for debugging
+  console.log('Request body:', req.body);
+  console.log(`Attempting to remove follow relationship: user_id=${user_id}, friend_id=${friend_id}, currentUser=${currentUser}`);
+
+  try {
+    // Convert IDs to ObjectId if they are not already
+    const userIdObj = new ObjectId(user_id);
+    const friendIdObj = new ObjectId(friend_id);
+
+    // Remove friend relationship
+    const result = await db.collection('friends').deleteOne({ user_id: userIdObj, friend_id: friendIdObj });
+
+    if (result.deletedCount === 1) {
+      console.log(`Successfully removed friend: friend_id=${friend_id} from user_id=${user_id}`);
+      await addUnfollowNotification(friend_id, currentUser);
+      res.json({ message: 'Friend removed successfully' });
+    } else {
+      console.log(`Friend not found: friend_id=${friend_id} for user_id=${user_id}`);
+      res.status(404).send('Friend not found');
+    }
+  } catch (err) {
+    console.error(`Error removing friend: friend_id=${friend_id} for user_id=${user_id}`, err);
+    res.status(500).send('Error removing friend');
+  }
+});
 app.post('/remove-follower', async (req, res) => {
   const { user_id, follower_id } = req.body;
   console.log('Request body:', req.body); // Log the entire request body
