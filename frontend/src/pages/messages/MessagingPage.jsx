@@ -3,7 +3,7 @@ import { useUser } from '../UserContext';
 import useWebSocket from 'react-use-websocket';
 import ReadyState from 'react-use-websocket';
 import {
-  fetchFriends,
+  fetchFriends, 
   fetchChatHistory,
   appendMessageToHistory,
   handleSendMessage,
