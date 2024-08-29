@@ -1092,7 +1092,7 @@ app.post('/remove-follow', async (req, res) => {
   }
 });*/
 
-const { ObjectId } = require('mongodb');
+
 
 app.post('/remove-follow', async (req, res) => {
   const { user_id, friend_id, currentUser } = req.body;
