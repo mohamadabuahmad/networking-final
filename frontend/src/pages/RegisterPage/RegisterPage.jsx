@@ -11,7 +11,6 @@ import {
   questionOptions,
 } from './registerUtils';
 import Webcam from 'react-webcam';
-import './RegisterPage.css';
 
 const RegisterPage = () => {
   const [step, setStep] = useState(1);

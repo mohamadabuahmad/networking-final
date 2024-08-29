@@ -9,7 +9,6 @@ import {
   followUser,
   searchUsers,
 } from './friendsUtils';
-import './FriendsPage.css';
 
 function FriendsPage() {
   const { currentUser } = useUser();

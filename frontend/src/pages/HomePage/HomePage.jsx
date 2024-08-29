@@ -7,7 +7,7 @@ import {
     addComment
 } from './homepageutilities.jsx';
 
-import './HomePage.css';
+
 import CommentsSidebar from '../CommentSidebar/CommentsSidebar.jsx';
 import { useUser } from '../UserContext.jsx';
 import axios from '../../api/axios.jsx';

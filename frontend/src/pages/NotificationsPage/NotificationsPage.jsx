@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../UserContext';
 import { fetchNotifications, markAsSeen } from './notificationsUtils';
-import './NotificationsPage.css';
+
 
 function NotificationsPage() {
   const { currentUser } = useUser();
