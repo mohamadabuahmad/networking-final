@@ -1033,7 +1033,7 @@ app.post('/follow', async (req, res) => {
     }
 
     // Add follow notification
-    await addFollowNotification(friend_id, currentUser);
+    //await addFollowNotification(friend_id, currentUser);
 
     res.json({ message: 'Friend added successfully', friend: { user_id: friend._id, user_name: friend.user_name } });
   } catch (err) {
